@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/Konstantin8105/SimpleTTL.svg?branch=master)](https://travis-ci.org/Konstantin8105/SimpleTTL)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Konstantin8105/SimpleTTL)](https://goreportcard.com/report/github.com/Konstantin8105/SimpleTTL)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Konstantin8105/SimpleTTL/blob/master/LICENSE)
-
+[![GoDoc](https://godoc.org/github.com/Konstantin8105/SimpleTTL?status.svg)](https://godoc.org/github.com/Konstantin8105/SimpleTTL)
 
 Simple TTL on golang for map[string]interface{}, so keys is string and values is something.
 
