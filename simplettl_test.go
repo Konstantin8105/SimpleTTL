@@ -56,7 +56,7 @@ func TestCount(t *testing.T) {
 		}
 	}
 
-	time.Sleep(time.Second)
+	time.Sleep(2 * time.Second)
 	// checking after
 	{
 		count := c.Count()
@@ -67,30 +67,27 @@ func TestCount(t *testing.T) {
 }
 
 func TestGetKeys(t *testing.T) {
-	c := simplettl.NewCache(2 * time.Second)
+	c := simplettl.NewCache(time.Second)
 	key := "foo"
 	value := "bar"
 	c.Add(key, value, time.Second)
 	// checking before
 	{
 		keys := c.GetKeys()
-		if len(key) != 1 {
-			t.Errorf("Not correct length of of keys")
+		if len(keys) != 1 {
+			t.Errorf("Not correct length of of keys before deadline. Len = %v", len(keys))
 		}
-		if keys[0] != value {
+		if keys[0] != key {
 			t.Errorf("Returned value is not correct")
 		}
 	}
 
-	time.Sleep(time.Second)
+	time.Sleep(time.Second * 2)
 	// checking after
 	{
 		keys := c.GetKeys()
-		if len(key) != 1 {
-			t.Errorf("Not correct length of of keys")
-		}
-		if keys[0] == value {
-			t.Errorf("We have correct value after deadline")
+		if len(keys) != 0 {
+			t.Errorf("Not correct length of of keys after deadline. Len = %v", len(keys))
 		}
 	}
 }

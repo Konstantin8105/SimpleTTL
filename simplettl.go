@@ -52,7 +52,7 @@ func NewCache(interval time.Duration) *Cache {
 	return cache
 }
 
-// Count - return amount element of TTL map. Safe for concurrent work.
+// Count - return amount element of TTL map.
 func (cache *Cache) Count() int {
 	cache.lock.Lock()
 	defer cache.lock.Unlock()
