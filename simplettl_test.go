@@ -1,6 +1,8 @@
 package simplettl_test
 
 import (
+	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -8,20 +10,20 @@ import (
 )
 
 func TestNewAtHour(t *testing.T) {
-	c := simplettl.NewCache(time.Hour)
-	if c == nil {
+	cache := simplettl.NewCache(time.Hour)
+	if cache == nil {
 		t.Errorf("Cannot create cache")
 	}
 }
 
 func TestGet(t *testing.T) {
-	c := simplettl.NewCache(2 * time.Second)
+	cache := simplettl.NewCache(2 * time.Second)
 	key := "foo"
 	value := "bar"
-	c.Add(key, value, time.Second)
+	cache.Add(key, value, time.Second)
 	// checking before
 	{
-		r, ok := c.Get(key)
+		r, ok := cache.Get(key)
 		if !ok {
 			t.Errorf("Cannot take \"ok\" from cache")
 		}
@@ -33,7 +35,7 @@ func TestGet(t *testing.T) {
 	time.Sleep(time.Second)
 	// checking after
 	{
-		r, ok := c.Get(key)
+		r, ok := cache.Get(key)
 		if ok {
 			t.Errorf("We have \"ok\" from cache after deadline")
 		}
@@ -44,13 +46,13 @@ func TestGet(t *testing.T) {
 }
 
 func TestCount(t *testing.T) {
-	c := simplettl.NewCache(time.Second / 10) // It will be the second
+	cache := simplettl.NewCache(time.Second / 10) // It will be the second
 	key := "foo"
 	value := "bar"
-	c.Add(key, value, time.Second/2)
+	cache.Add(key, value, time.Second/2)
 	// checking before
 	{
-		count := c.Count()
+		count := cache.Count()
 		if count != 1 {
 			t.Errorf("Cannot take correct counts of map elements before deadline. Count = %v", count)
 		}
@@ -59,7 +61,7 @@ func TestCount(t *testing.T) {
 	time.Sleep(2 * time.Second)
 	// checking after
 	{
-		count := c.Count()
+		count := cache.Count()
 		if count != 0 {
 			t.Errorf("Cannot take correct counts of map elements after deadline. Count = %v", count)
 		}
@@ -67,13 +69,13 @@ func TestCount(t *testing.T) {
 }
 
 func TestGetKeys(t *testing.T) {
-	c := simplettl.NewCache(time.Second)
+	cache := simplettl.NewCache(time.Second)
 	key := "foo"
 	value := "bar"
-	c.Add(key, value, time.Second)
+	cache.Add(key, value, time.Second)
 	// checking before
 	{
-		keys := c.GetKeys()
+		keys := cache.GetKeys()
 		if len(keys) != 1 {
 			t.Errorf("Not correct length of of keys before deadline. Len = %v", len(keys))
 		}
@@ -85,9 +87,38 @@ func TestGetKeys(t *testing.T) {
 	time.Sleep(time.Second * 2)
 	// checking after
 	{
-		keys := c.GetKeys()
+		keys := cache.GetKeys()
 		if len(keys) != 0 {
 			t.Errorf("Not correct length of of keys after deadline. Len = %v", len(keys))
 		}
 	}
+}
+
+func TestCondition(t *testing.T) {
+	cache := simplettl.NewCache(time.Second)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		cache.Add("Dream", 42, time.Hour)
+		wg.Done()
+	}()
+
+	cache.Add("Dream", -1, time.Second)
+
+	wg.Wait()
+
+	if cache.Count() != 1 {
+		t.Errorf("Checking race condition")
+	}
+}
+
+func ExampleSimple() {
+	cache := simplettl.NewCache(2 * time.Second)
+	key := "foo"
+	value := "bar"
+	cache.Add(key, value, time.Second)
+	if r, ok := cache.Get(key); ok {
+		fmt.Printf("Value for key %v is %v", key, r)
+	}
+	// Output: Value for key foo is bar
 }
