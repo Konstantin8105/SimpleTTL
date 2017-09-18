@@ -7,6 +7,6 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Konstantin8105/SimpleTTL/blob/master/LICENSE)
 
 
-Simple TTL on golang for map[string]interface{}, so keys is string and values is something
+Simple TTL on golang for map[string]interface{}, so keys is string and values is something.
 
 See more detail: https://en.wikipedia.org/wiki/Time_to_live
