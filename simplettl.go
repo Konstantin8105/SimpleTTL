@@ -1,4 +1,4 @@
-package simpleTTL
+package simplettl
 
 import (
 	"sync"
@@ -25,8 +25,8 @@ type Cache struct {
 // * key is string
 // * haven`t stopping of cache
 func NewCache(interval time.Duration) *Cache {
-	if interval < time.Minute {
-		interval = time.Minute
+	if interval < time.Second {
+		interval = time.Second
 	}
 	cache := &Cache{
 		timeTTL: interval,
@@ -87,13 +87,15 @@ func (cache *Cache) Add(key string, value interface{}, ttl time.Duration) {
 }
 
 // GetKeys - return all keys of cache map
-func (cache *Cache) GetKeys() []string {
+func (cache *Cache) GetKeys() []interface{} {
 	cache.lock.Lock()
 	defer cache.lock.Unlock()
 
-	keys := make([]string, len(cache.cache))
-	for i, k := range cache.cache {
+	keys := make([]interface{}, len(cache.cache))
+	var i int
+	for k := range cache.cache {
 		keys[i] = k
+		i++
 	}
 	return keys
 }
