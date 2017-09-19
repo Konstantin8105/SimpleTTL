@@ -2,6 +2,7 @@ package simplettl_test
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -112,7 +113,7 @@ func TestCondition(t *testing.T) {
 	}
 }
 
-func ExampleSimple() {
+func ExampleNewCache() {
 	cache := simplettl.NewCache(2 * time.Second)
 	key := "foo"
 	value := "bar"
@@ -121,4 +122,31 @@ func ExampleSimple() {
 		fmt.Printf("Value for key %v is %v", key, r)
 	}
 	// Output: Value for key foo is bar
+}
+
+func BenchmarkCondition(b *testing.B) {
+	cache := simplettl.NewCache(2 * time.Second)
+	amount := 100
+	mapSize := 100
+	for i := 0; i < b.N; i++ {
+		var wg sync.WaitGroup
+		wg.Add(2 * amount)
+
+		for j := 0; j < amount; j++ {
+			go func(pos int) {
+				defer wg.Done()
+				for i := 0; i < mapSize; i++ {
+					_, _ = cache.Get(strconv.Itoa(i))
+				}
+			}(j)
+			go func(pos int) {
+				defer wg.Done()
+				for i := 0; i < mapSize; i++ {
+					cache.Add(strconv.Itoa(i), "foo", time.Second)
+				}
+			}(j)
+		}
+
+		wg.Wait()
+	}
 }
